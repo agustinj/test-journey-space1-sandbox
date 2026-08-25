@@ -19,18 +19,18 @@ fi
 
 cd "$TOOLSHOP_DIR" || exit 0
 
-# Local build override: the official "web" and "cron" images are only
-# published for arm64, and a Codespace is amd64 — build them from source
-# instead of pulling the prebuilt images.
 if [ ! -f docker-compose.local-build.yml ]; then
   printf 'services:\n  web:\n    build:\n      context: ./_docker\n      dockerfile: web.docker\n  cron:\n    build:\n      context: ./_docker/cron\n      dockerfile: Dockerfile\n' > docker-compose.local-build.yml
 fi
 
-# The repo's .env (versioned in git) already sets SPRINT=sprint5 — required
-# for the laravel-api/angular-ui image names. Add it if somehow missing,
-# but NEVER overwrite the whole file.
 if ! grep -q '^SPRINT=' .env 2>/dev/null; then
   echo "SPRINT=sprint5" >> .env
+fi
+
+SPRINT_VAL="$(grep '^SPRINT=' .env | head -n1 | cut -d= -f2)"
+API_ENV="${SPRINT_VAL}/API/.env"
+if [ -f "$API_ENV" ] && ! grep -q '^L5_SWAGGER_USE_ABSOLUTE_PATH=' "$API_ENV" 2>/dev/null; then
+  echo "L5_SWAGGER_USE_ABSOLUTE_PATH=false" >> "$API_ENV"
 fi
 
 echo "[toolshop] Building and starting containers (may take a few minutes the first time)..."
@@ -43,6 +43,10 @@ for i in $(seq 1 40); do
   fi
   sleep 3
 done
+
+$COMPOSE exec -T laravel-api sh -c 'grep -q "^L5_SWAGGER_USE_ABSOLUTE_PATH=" /var/www/.env || echo "L5_SWAGGER_USE_ABSOLUTE_PATH=false" >> /var/www/.env'
+$COMPOSE exec -T laravel-api php artisan config:clear
+$COMPOSE restart laravel-api
 
 echo "[toolshop] Seeding database..."
 $COMPOSE exec -T laravel-api php artisan migrate:fresh --seed --force
