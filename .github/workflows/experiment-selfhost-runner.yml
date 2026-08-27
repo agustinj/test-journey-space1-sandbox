@@ -18,6 +18,19 @@ jobs:
           grep -q '^SPRINT=' .env || echo "SPRINT=sprint5" >> .env
           docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml up -d --build
 
+      - name: Migrar y seedear DB
+        working-directory: toolshop-selfhost
+        run: |
+          COMPOSE="docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml"
+          for i in $(seq 1 20); do
+            if $COMPOSE exec -T laravel-api php artisan migrate:fresh --seed --force; then
+              break
+            fi
+            sleep 3
+          done
+          $COMPOSE exec -T -u root laravel-api chown -R www-data:www-data storage bootstrap/cache
+          $COMPOSE exec -T -u root laravel-api chmod -R 775 storage bootstrap/cache
+
       - name: Wait for site to respond
         working-directory: toolshop-selfhost
         run: |
@@ -50,3 +63,4 @@ jobs:
             exit 1
           fi
           echo "El self-host respondió OK dentro del runner."
+          
