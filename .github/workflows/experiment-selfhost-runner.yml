@@ -1,0 +1,52 @@
+name: experiment-selfhost-runner
+ 
+on:
+  workflow_dispatch:
+ 
+jobs:
+  test-selfhost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Clone ToolShop
+        run: git clone --quiet https://github.com/testsmith-io/practice-software-testing.git toolshop-selfhost
+ 
+      - name: Build overrides + start stack
+        working-directory: toolshop-selfhost
+        run: |
+          printf 'services:\n  web:\n    build:\n      context: ./_docker\n      dockerfile: web.docker\n  cron:\n    build:\n      context: ./_docker/cron\n      dockerfile: Dockerfile\n' > docker-compose.local-build.yml
+          grep -q '^SPRINT=' .env || echo "SPRINT=sprint5" >> .env
+          docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml up -d --build
+ 
+       - name: Wait for site to respond
+        working-directory: toolshop-selfhost
+        run: |
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -sf -o /dev/null http://localhost:4200 && curl -sf -o /dev/null http://localhost:8091/products; then
+              ok=1
+              break
+            fi
+            sleep 3
+          done
+          echo "ok=$ok" >> "$GITHUB_ENV"
+ 
+      - name: Diagnóstico
+        if: always()
+        working-directory: toolshop-selfhost
+        run: |
+          echo "Respondió: ${ok:-0}"
+          curl -v http://localhost:8091/products || true
+          curl -v http://localhost:4200 || true
+          docker ps -a
+          docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml logs --tail=200
+          free -h
+          df -h
+ 
+      - name: Resultado
+        run: |
+          if [ "$ok" != "1" ]; then
+            echo "El self-host NO respondió dentro del runner."
+            exit 1
+          fi
+          echo "El self-host respondió OK dentro del runner."
