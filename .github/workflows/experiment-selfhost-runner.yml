@@ -1,8 +1,8 @@
 name: experiment-selfhost-runner
- 
+
 on:
   workflow_dispatch:
- 
+
 jobs:
   test-selfhost:
     runs-on: ubuntu-latest
@@ -10,15 +10,15 @@ jobs:
     steps:
       - name: Clone ToolShop
         run: git clone --quiet https://github.com/testsmith-io/practice-software-testing.git toolshop-selfhost
- 
+
       - name: Build overrides + start stack
         working-directory: toolshop-selfhost
         run: |
           printf 'services:\n  web:\n    build:\n      context: ./_docker\n      dockerfile: web.docker\n  cron:\n    build:\n      context: ./_docker/cron\n      dockerfile: Dockerfile\n' > docker-compose.local-build.yml
           grep -q '^SPRINT=' .env || echo "SPRINT=sprint5" >> .env
           docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml up -d --build
- 
-       - name: Wait for site to respond
+
+      - name: Wait for site to respond
         working-directory: toolshop-selfhost
         run: |
           ok=0
@@ -30,7 +30,7 @@ jobs:
             sleep 3
           done
           echo "ok=$ok" >> "$GITHUB_ENV"
- 
+
       - name: Diagnóstico
         if: always()
         working-directory: toolshop-selfhost
@@ -42,7 +42,7 @@ jobs:
           docker compose -f docker-compose.prod.yml -f docker-compose.local-build.yml logs --tail=200
           free -h
           df -h
- 
+
       - name: Resultado
         run: |
           if [ "$ok" != "1" ]; then
