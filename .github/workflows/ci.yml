@@ -33,6 +33,10 @@ jobs:
         working-directory: toolshop-selfhost
         run: docker compose up -d
 
+      - name: Diagnóstico de contenedores
+        working-directory: toolshop-selfhost
+        run: docker ps -a
+
       - name: Esperar a que la API esté lista
         working-directory: toolshop-selfhost
         run: |
