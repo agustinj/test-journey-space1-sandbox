@@ -27,3 +27,5 @@ Since this repo is set up as a GitHub Template, there's no manual setup needed: 
 ## What's next
 
 Once you've confirmed this works, the next step is for each student to do exactly the same thing: create their own copy of this repo from the template, then open a Codespace on it. From there, the conversation with Alex begins, and that's where the framework actually gets built — checkpoint 1 (repo initialized, first commit) is already taken care of by this same process.
+
+<!-- probando disparo de CI -->
