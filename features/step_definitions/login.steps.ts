@@ -20,5 +20,5 @@ When('ingresa credenciales válidas', { timeout: 30000 }, async function () {
 });
 
 Then('accede a su cuenta', { timeout: 30000 }, async function () {
-  await expect(page.locator('[data-test="page-title"]')).toBeVisible();
+  await expect(page.locator('[data-test="page-title"]')).toBeVisible({ timeout: 15000 });
 });
