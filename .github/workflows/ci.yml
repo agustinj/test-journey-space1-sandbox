@@ -44,6 +44,20 @@ jobs:
           echo "Timeout esperando el contenedor"
           exit 1
 
+      - name: Esperar a que la base de datos esté lista
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..30}; do
+            if docker exec toolshop-selfhost-mariadb-1 mysqladmin ping -h localhost --silent 2>/dev/null; then
+              echo "Base de datos lista"
+              exit 0
+            fi
+            echo "Esperando a la base de datos... ($i/30)"
+            sleep 2
+          done
+          echo "Timeout esperando la base de datos"
+          exit 1    
+
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
         run: docker exec toolshop-selfhost-laravel-api-1 php artisan migrate:fresh --seed
