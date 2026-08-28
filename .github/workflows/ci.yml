@@ -31,7 +31,7 @@ jobs:
 
       - name: Levantar ToolShop
         working-directory: toolshop-selfhost
-        run: docker compose up -d
+        run: docker compose -p toolshop up -d
 
       - name: Diagnóstico de contenedores
         working-directory: toolshop-selfhost
@@ -41,7 +41,7 @@ jobs:
         working-directory: toolshop-selfhost
         run: |
           for i in {1..30}; do
-            if docker exec toolshop-selfhost-laravel-api-1 php artisan --version 2>/dev/null; then
+            if docker exec toolshop-laravel-api-1 php artisan --version 2>/dev/null; then
               echo "API lista"
               exit 0
             fi
@@ -55,7 +55,7 @@ jobs:
         working-directory: toolshop-selfhost
         run: |
           for i in {1..30}; do
-            if docker exec toolshop-selfhost-mariadb-1 mysqladmin ping -h localhost --silent 2>/dev/null; then
+            if docker exec toolshop-mariadb-1 mysqladmin ping -h localhost --silent 2>/dev/null; then
               echo "Base de datos lista"
               exit 0
             fi
@@ -63,11 +63,11 @@ jobs:
             sleep 2
           done
           echo "Timeout esperando la base de datos"
-          exit 1    
+          exit 1
 
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
-        run: docker exec toolshop-selfhost-laravel-api-1 php artisan migrate:fresh --seed
+        run: docker exec toolshop-laravel-api-1 php artisan migrate:fresh --seed
 
       - name: Diagnóstico de puertos
         working-directory: toolshop-selfhost
