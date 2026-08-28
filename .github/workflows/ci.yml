@@ -65,6 +65,20 @@ jobs:
           echo "Timeout esperando la base de datos"
           exit 1
 
+      - name: Esperar a que el frontend esté listo
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..45}; do
+            if curl -sf http://localhost:4200 -o /dev/null; then
+              echo "Frontend listo"
+              exit 0
+            fi
+            echo "Esperando al frontend... ($i/45)"
+            sleep 3
+          done
+          echo "Timeout esperando el frontend"
+          exit 1
+
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
         run: docker exec toolshop-laravel-api-1 php artisan migrate:fresh --seed
