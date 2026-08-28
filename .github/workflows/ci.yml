@@ -78,3 +78,8 @@ jobs:
 
       - name: Correr suite crítica
         run: npm run bdd:critical
+
+      - name: Ver logs de Laravel (si algo falló)
+        if: failure()
+        working-directory: toolshop-selfhost
+        run: docker exec toolshop-laravel-api-1 tail -100 storage/logs/laravel.log
