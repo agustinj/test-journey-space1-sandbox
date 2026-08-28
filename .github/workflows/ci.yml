@@ -12,6 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Checkout ToolShop
+        uses: actions/checkout@v4
+        with:
+          repository: testsmith-io/practice-software-testing
+          path: toolshop-selfhost
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -19,3 +25,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Levantar ToolShop
+        working-directory: toolshop-selfhost
+        run: docker compose -f docker-compose.prod.yml up --pull missing -d
+
+      - name: Migrar y sembrar la base de datos
+        working-directory: toolshop-selfhost
+        run: docker exec pst-laravel-api-1 php artisan migrate:fresh --seed
