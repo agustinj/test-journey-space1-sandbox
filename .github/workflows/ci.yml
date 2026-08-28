@@ -90,4 +90,7 @@ jobs:
           docker exec -u root toolshop-laravel-api-1 chmod -R 775 storage bootstrap/cache
 
       - name: Correr suite crítica
+        env:
+          TOOLSHOP_EMAIL: ${{ secrets.TOOLSHOP_EMAIL }}
+          TOOLSHOP_PASSWORD: ${{ secrets.TOOLSHOP_PASSWORD }}
         run: npm run bdd:critical
