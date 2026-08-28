@@ -1,0 +1,23 @@
+{
+  "name": "test-journey-space1",
+  "version": "1.0.0",
+  "description": "Esto es solo el **entorno**, no el proyecto. A propósito no tiene `package.json` ni tests — eso es contenido de la Semana 1 y lo arma cada alumno junto con Marcos (el Tech Lead). Lo único que resuelve este repo es que Node, npm y los navegadores de Playwright ya estén instalados y funcionando, sin que nadie tenga que configurar nada en su compu.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "bdd": "cucumber-js --config cucumber.cjs",
+    "bdd:api": "cucumber-js --config cucumber.cjs --tags '@api'",
+    "bdd:ui": "cucumber-js --config cucumber.cjs --tags 'not @api'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.9.0",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0",
+    "dotenv": "^17.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
