@@ -65,5 +65,12 @@ jobs:
         working-directory: toolshop-selfhost
         run: docker exec toolshop-selfhost-laravel-api-1 php artisan migrate:fresh --seed
 
+      - name: Diagnóstico de puertos
+        working-directory: toolshop-selfhost
+        run: |
+          docker ps
+          curl -v http://localhost:4200 || echo "4200 no responde"
+          curl -v http://localhost:8091 || echo "8091 no responde"
+
       - name: Correr suite crítica
         run: npm run bdd:critical
