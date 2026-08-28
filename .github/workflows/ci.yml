@@ -61,3 +61,6 @@ jobs:
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
         run: docker exec toolshop-selfhost-laravel-api-1 php artisan migrate:fresh --seed
+
+      - name: Correr suite crítica
+        run: npm run bdd:critical
