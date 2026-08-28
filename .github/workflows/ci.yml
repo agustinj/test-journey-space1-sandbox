@@ -31,7 +31,7 @@ jobs:
 
       - name: Levantar ToolShop
         working-directory: toolshop-selfhost
-        run: docker compose -f docker-compose.prod.yml up --pull missing -d
+        run: docker compose up -d
 
       - name: Esperar a que la API esté lista
         working-directory: toolshop-selfhost
