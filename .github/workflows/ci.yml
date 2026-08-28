@@ -34,7 +34,7 @@ jobs:
         working-directory: toolshop-selfhost
         run: |
           for i in {1..30}; do
-            if docker exec pst-laravel-api-1 php artisan --version 2>/dev/null; then
+            if docker exec toolshop-selfhost-laravel-api-1 php artisan --version 2>/dev/null; then
               echo "API lista"
               exit 0
             fi
@@ -46,4 +46,4 @@ jobs:
 
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
-        run: docker exec pst-laravel-api-1 php artisan migrate:fresh --seed
+        run: docker exec toolshop-selfhost-laravel-api-1 php artisan migrate:fresh --seed
