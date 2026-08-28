@@ -3,6 +3,7 @@ Feature: Carrito de compras
   Background:
     Given el usuario está en la página de inicio
 
+  @critical
   Scenario: Agregar un producto al carrito con su precio correcto
     When agrega "Combination Pliers" al carrito
     And visita el carrito
@@ -27,10 +28,12 @@ Feature: Carrito de compras
     And elimina "Sheet Sander" del carrito
     Then el total del carrito es el precio del producto restante
 
+  @critical
   Scenario: No se puede acceder al checkout sin productos en el carrito
     Given el usuario está en la página de inicio
     Then no debería ver el ícono del carrito en la navegación
 
+  @critical
   Scenario: No se puede avanzar al checkout si el carrito queda vacío
     When agrega "Flat-Head Wood Screws" al carrito
     And visita el carrito
