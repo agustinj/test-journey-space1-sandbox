@@ -30,6 +30,20 @@ jobs:
         working-directory: toolshop-selfhost
         run: docker compose -f docker-compose.prod.yml up --pull missing -d
 
+      - name: Esperar a que la API esté lista
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..30}; do
+            if docker exec pst-laravel-api-1 php artisan --version 2>/dev/null; then
+              echo "API lista"
+              exit 0
+            fi
+            echo "Esperando a que el contenedor esté listo... ($i/30)"
+            sleep 2
+          done
+          echo "Timeout esperando el contenedor"
+          exit 1
+
       - name: Migrar y sembrar la base de datos
         working-directory: toolshop-selfhost
         run: docker exec pst-laravel-api-1 php artisan migrate:fresh --seed
