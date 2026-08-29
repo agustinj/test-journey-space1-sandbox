@@ -97,3 +97,10 @@ jobs:
         with:
           name: failure-screenshot
           path: failure-login.png
+
+      - name: Subir evidencia de fallos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
