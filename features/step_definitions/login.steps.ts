@@ -21,7 +21,7 @@ When('ingresa credenciales válidas', { timeout: 30000 }, async function () {
 
 Then('accede a su cuenta', { timeout: 30000 }, async function () {
   try {
-    await expect(page.locator('[data-test="page-title"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-test="page-title"]')).toBeVisible();
   } catch (e) {
     console.log('URL en el momento del fallo:', page.url());
     await page.screenshot({ path: 'failure-login.png' });
