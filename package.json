@@ -7,7 +7,8 @@
     "test": "playwright test",
     "bdd": "cucumber-js --config cucumber.cjs",
     "bdd:api": "cucumber-js --config cucumber.cjs --tags '@api'",
-    "bdd:ui": "cucumber-js --config cucumber.cjs --tags 'not @api'"
+    "bdd:ui": "cucumber-js --config cucumber.cjs --tags 'not @api'",
+    "bdd:critical": "cucumber-js --config cucumber.cjs --tags '@critical'"
   },
   "keywords": [],
   "author": "",

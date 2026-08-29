@@ -11,5 +11,96 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Confirmar que el workflow corre
-        run: echo "El workflow se disparó correctamente"
+
+      - name: Checkout ToolShop
+        uses: actions/checkout@v4
+        with:
+          repository: testsmith-io/practice-software-testing
+          path: toolshop-selfhost
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Levantar ToolShop
+        working-directory: toolshop-selfhost
+        run: docker compose -p toolshop up -d
+
+      - name: Esperar a que la API esté lista
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..30}; do
+            if docker exec toolshop-laravel-api-1 php artisan --version 2>/dev/null; then
+              echo "API lista"
+              exit 0
+            fi
+            echo "Esperando a que el contenedor esté listo... ($i/30)"
+            sleep 2
+          done
+          echo "Timeout esperando el contenedor"
+          exit 1
+
+      - name: Esperar a que la base de datos esté lista
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..30}; do
+            if docker exec toolshop-mariadb-1 mysqladmin ping -h localhost --silent 2>/dev/null; then
+              echo "Base de datos lista"
+              exit 0
+            fi
+            echo "Esperando a la base de datos... ($i/30)"
+            sleep 2
+          done
+          echo "Timeout esperando la base de datos"
+          exit 1
+
+      - name: Esperar a que el frontend esté listo
+        working-directory: toolshop-selfhost
+        run: |
+          for i in {1..45}; do
+            if curl -sf http://localhost:4200 -o /dev/null; then
+              echo "Frontend listo"
+              exit 0
+            fi
+            echo "Esperando al frontend... ($i/45)"
+            sleep 3
+          done
+          echo "Timeout esperando el frontend"
+          exit 1
+
+      - name: Migrar y sembrar la base de datos
+        working-directory: toolshop-selfhost
+        run: docker exec toolshop-laravel-api-1 php artisan migrate:fresh --seed
+
+      - name: Ajustar permisos de storage y cache
+        working-directory: toolshop-selfhost
+        run: |
+          docker exec -u root toolshop-laravel-api-1 chown -R www-data:www-data storage bootstrap/cache
+          docker exec -u root toolshop-laravel-api-1 chmod -R 775 storage bootstrap/cache
+
+      - name: Correr suite crítica
+        env:
+          TOOLSHOP_EMAIL: ${{ secrets.TOOLSHOP_EMAIL }}
+          TOOLSHOP_PASSWORD: ${{ secrets.TOOLSHOP_PASSWORD }}
+        run: npm run bdd:critical
+
+      - name: Subir captura del fallo
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshot
+          path: failure-login.png
+
+      - name: Subir evidencia de fallos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/

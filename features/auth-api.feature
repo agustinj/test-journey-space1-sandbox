@@ -1,6 +1,7 @@
 @api
 Feature: Autenticación vía API
 
+  @critical
   Scenario: Login exitoso devuelve un token válido
     When se hace login con email "customer@practicesoftwaretesting.com" y password "welcome01"
     Then el status code de la respuesta es 200
